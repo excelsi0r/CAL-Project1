@@ -7,6 +7,8 @@
 #define SRC_HEADERS_H_
 
 #include "Graph.h"
+#include "connection.h"
+#include "graphviewer.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -14,6 +16,9 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
+#include <iomanip>
+#include <conio.h>
+#include <windows.h>
 
 /**
  * Coordenate Class por better positioning
@@ -25,14 +30,15 @@
 class Coordenate
 {
 private:
+	double idNo;
 	/**
 	 * integer x coordenate
 	 */
-	int x;
+	double lon;
 	/**
 	 * integer y coordenate
 	 */
-	int y;
+	double lat;
 public:
 	/**
 	 * Default constructor for Coordenate Class, sets x and y to 0
@@ -43,7 +49,7 @@ public:
 	 * @param x
 	 * @param y
 	 */
-	Coordenate(int x, int y);
+	Coordenate(int idNo,double lon, double lat);
 	/**
 	 * Virual Destructor for Coordenate Class
 	 */
@@ -52,12 +58,16 @@ public:
 	 * Get X method. Returns X value
 	 * @return x
 	 */
-	int const getX();
+	double const getX();
 	/**
 	 * Get Y method. Returns Y value
 	 * @return y
 	 */
-	int const getY();
+	double const getY();
+	/**
+	 *
+	 */
+	double const getID();
 };
 
 /**
@@ -246,10 +256,27 @@ public:
 class System
 {
 private:
+
+	/**
+	 * Graph
+	 */
+	Graph<int> * g;
+	/**
+	 * Vector of Vertex.
+	 */
+	vector<Vertex<int> *> nodes;
+	/**
+	 * Vector of Edges
+	 */
+	vector<Edge<int> *> edges;
 	/**
 	 * Company element pointer. Points to Company already created
 	 */
 	Company* company;
+	/**
+	 * GraphViewer for Graph creation
+	 */
+	GraphViewer * gv;
 	/**
 	 * Vector of Coordenate pointers. This vector contains all the Coordenates of the System.
 	 */
@@ -279,7 +306,7 @@ public:
 	 * @param students file
 	 * @param buses file
 	 */
-	void initialize(const char * coords, const char * company, const char * schools, const char * students, const char * busfile);
+	void initialize(const char * coords,const char * edges, const char * company, const char * schools, const char * students, const char * busfile);
 	/**
 	 * Retrieve all coordenats from the coords file. Allocates new Coordenates and stores the pointers in the vector coords.
 	 * This is also the Nodes file, must be 'idNo;X;Y'
@@ -345,5 +372,36 @@ public:
 	 * @return School* or NULL
 	 */
 	School * const existsSchool(int x, int y);
+	/**
+	 * Retrieve nodes funtion from file to gv
+	 * @param file
+	 */
+	void retrieveNodes(const char * file);
+	/**
+	 * Retrieve edges funtion from file to gv
+	 * @param file
+	 */
+	void retrieveEdges(const char * file);
+	/**
+	 * Creates new GraphViewer
+	 */
+	void createGraphViewer();
+	/**
+	 * Create Graph
+	 */
+	void createGraph();
+	/**
+	 * Get GraphViewer
+	 * @return GraphViewer *
+	 */
+	GraphViewer *  getGV();
+	/**
+	 *
+	 */
+	vector<Student *> getStudentsOfSchool(School * s);
+	/**
+	 * Calculate buses for schools and paths
+	 */
+	void calculate();
 };
 #endif /* SRC_HEADERS_H_ */

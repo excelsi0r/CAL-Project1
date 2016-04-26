@@ -9,15 +9,17 @@
 
 Coordenate::Coordenate()
 {
-	this->x = 0;
-	this->y = 0;
+	this->lon = 0;
+	this->lat = 0;
+	this->idNo = 0;
 
 }
 
-Coordenate::Coordenate(int x, int y)
+Coordenate::Coordenate(int idNo, double lon, double lat)
 {
-	this->x = x;
-	this->y = y;
+	this->lon = lon;
+	this->lat = lat;
+	this->idNo = idNo;
 
 }
 
@@ -25,12 +27,16 @@ Coordenate::~Coordenate() {
 	// TODO Auto-generated destructor stub
 }
 
-int const Coordenate::getX()
+double const Coordenate::getX()
 {
-	return x;
+	return lon;
 }
 
-int const Coordenate::getY()
+double const Coordenate::getY()
 {
-	return y;
+	return lat;
+}
+double const Coordenate::getID()
+{
+	return this->idNo;
 }

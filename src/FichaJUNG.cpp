@@ -229,11 +229,12 @@ void exercicio3()
 
 	gv->rearrange();
 }
-
+/*
 int main() {
 	//exercicio1();
-	exercicio2();
-	//exercicio3();
+	//exercicio2();
+	exercicio3();
 	getchar();
 	return 0;
 }
+*/

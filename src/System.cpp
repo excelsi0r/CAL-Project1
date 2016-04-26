@@ -10,12 +10,19 @@
 System::System()
 {
 	this->company = NULL;
+	this->gv = NULL;
+	this->g = NULL;
 }
 
-void System::initialize(const char * coords, const char * company, const char * schools, const char * students, const char * busfile)
+void System::initialize(const char * coords,const char * edges, const char * company, const char * schools, const char * students, const char * busfile)
 {
-	this->retrieveCoords(coords);
+	this->createGraph();
+	this->createGraphViewer();
+
+	this->retrieveNodes(coords);
 	this->printCoords();
+
+	this->retrieveEdges(edges);
 
 	this->retrieveCompany(company);
 	this->printCompany();
@@ -28,7 +35,6 @@ void System::initialize(const char * coords, const char * company, const char * 
 
 	this->retrieveStudents(students);
 	this->printStudents();
-
 
 }
 
@@ -64,7 +70,7 @@ void System::retrieveCoords(const char * file)
 		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
 		linestream >> Y;
 
-		Coordenate* c = new Coordenate(X,Y);
+		Coordenate* c = new Coordenate(idNo,X,Y);
 		this->coords.push_back(c);
 
 	}
@@ -81,9 +87,10 @@ void const System::printCoords()
 
 	while(it != this->coords.end())
 	{
-		cout << (*it)->getX() << ", " << (*it)->getY() << endl;
+		cout << setprecision(12)<< (*it)->getID() << " " << (*it)->getX() << ", " << (*it)->getY() << endl;
 		it++;
 	}
+
 }
 
 
@@ -388,3 +395,147 @@ School * const System::existsSchool(int x, int y)
 
 }
 
+void System::createGraphViewer()
+{
+	this->gv = new GraphViewer(1500, 100, false);
+	gv->setBackground("background.png");
+	gv->createWindow(1500, 1500);
+	gv->defineEdgeColor("blue");
+	gv->defineVertexColor("yellow");
+
+}
+
+void System::createGraph()
+{
+	this->g = new Graph<int>;
+}
+
+void System::retrieveNodes(const char * file)
+{
+	fstream inFile;
+
+	inFile.open(file);
+
+	if (!inFile)
+	{
+		cerr << "Unable to open file " << file;
+		exit(1);   // call system to stop
+	}
+
+	string  line;
+
+	int idNo=0;
+	double lon=0;
+	double lat=0;
+
+	while(getline(inFile, line))
+	{
+		stringstream linestream(line);
+		string  data;
+
+		if(line == "")
+		{
+			cerr << "No Coordenate\n";
+			exit(1);
+		}
+
+		linestream >> idNo;
+
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> lon;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> lat;
+
+		Coordenate* c = new Coordenate(idNo,lon,lat);
+		this->coords.push_back(c);
+
+		this->g->addVertex(idNo);
+		this->gv->addNode(idNo,lon,lat);
+
+	}
+
+	inFile.close();
+}
+
+GraphViewer *  System::getGV()
+{
+	return this->gv;
+}
+
+void System::retrieveEdges(const char * file)
+{
+	fstream inFile;
+
+	inFile.open(file);
+
+	if (!inFile)
+	{
+		cerr << "Unable to open file " << file;
+		exit(1);   // call system to stop
+	}
+
+	string  line;
+
+	int idedge=0;
+	int idsource=0;
+	int iddest=0;
+	double w=0;
+
+
+	while(getline(inFile, line))
+	{
+		stringstream linestream(line);
+		string  data;
+
+		if(line == "")
+		{
+			cerr << "No Edges\n";
+			exit(1);
+		}
+
+		linestream >> idedge;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> idsource;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> iddest;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> w;
+
+
+		this->g->addEdge(idsource,iddest,w);
+		this->gv->addEdge(idedge,idsource,iddest,EdgeType::UNDIRECTED);
+
+	}
+
+	inFile.close();
+}
+
+vector<Student *> System::getStudentsOfSchool(School * s)
+{
+	vector<Student *> vt;
+
+	typename vector<Student *>::const_iterator it = this->students.begin();
+
+	while(it != this->students.end())
+	{
+		if((*it)->getSchoolX() == s->getX() && (*it)->getSchoolY() == s->getY())
+			vt.push_back((*it));
+		it++;
+	}
+
+	return vt;
+}
+
+
+void System::calculate()
+{
+	typename vector<School *>::const_iterator it = this->schools.begin();
+
+	while(it != this->schools.end())
+	{
+
+		vector<Student *> vt = this->getStudentsOfSchool((*it));
+
+		it++;
+	}
+}
