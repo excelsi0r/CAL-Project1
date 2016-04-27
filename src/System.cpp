@@ -17,7 +17,6 @@ System::System()
 void System::initialize(const char * coords,const char * edges, const char * company, const char * schools, const char * students, const char * busfile)
 {
 	this->createGraph();
-	this->createGraphViewer();
 
 	this->retrieveNodes(coords);
 	this->printCoords();
@@ -35,6 +34,8 @@ void System::initialize(const char * coords,const char * edges, const char * com
 
 	this->retrieveStudents(students);
 	this->printStudents();
+
+	this->calculate();
 
 }
 
@@ -347,6 +348,8 @@ void const System::printStudents()
 		it++;
 	}
 
+	cout << endl;
+
 }
 
 
@@ -450,6 +453,47 @@ void System::retrieveNodes(const char * file)
 		this->coords.push_back(c);
 
 		this->g->addVertex(idNo);
+	}
+
+	inFile.close();
+}
+
+void System::retrieveNodesViewer(const char * file)
+{
+	fstream inFile;
+
+	inFile.open(file);
+
+	if (!inFile)
+	{
+		cerr << "Unable to open file " << file;
+		exit(1);   // call system to stop
+	}
+
+	string  line;
+
+	int idNo=0;
+	double lon=0;
+	double lat=0;
+
+	while(getline(inFile, line))
+	{
+		stringstream linestream(line);
+		string  data;
+
+		if(line == "")
+		{
+			cerr << "No Coordenate\n";
+			exit(1);
+		}
+
+		linestream >> idNo;
+
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> lon;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> lat;
+
 		this->gv->addNode(idNo,lon,lat);
 
 	}
@@ -503,6 +547,51 @@ void System::retrieveEdges(const char * file)
 
 
 		this->g->addEdge(idsource,iddest,w);
+
+	}
+
+	inFile.close();
+}
+
+void System::retrieveEdgesViewer(const char * file)
+{
+	fstream inFile;
+
+	inFile.open(file);
+
+	if (!inFile)
+	{
+		cerr << "Unable to open file " << file;
+		exit(1);   // call system to stop
+	}
+
+	string  line;
+
+	int idedge=0;
+	int idsource=0;
+	int iddest=0;
+	double w=0;
+
+
+	while(getline(inFile, line))
+	{
+		stringstream linestream(line);
+		string  data;
+
+		if(line == "")
+		{
+			cerr << "No Edges\n";
+			exit(1);
+		}
+
+		linestream >> idedge;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> idsource;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> iddest;
+		getline(linestream, data, ';');  // read up-to the first ; (discard ;).
+		linestream >> w;
+
 		this->gv->addEdge(idedge,idsource,iddest,EdgeType::UNDIRECTED);
 
 	}
@@ -527,15 +616,112 @@ vector<Student *> System::getStudentsOfSchool(School * s)
 }
 
 
+int System::getSeats(vector<Bus *> * vb)
+{
+	typename vector<Bus *>::const_iterator it = vb->begin();
+
+	int seats = 0;
+
+	while(it != vb->end())
+	{
+		seats += (*it)->getCapacity();
+		it++;
+	}
+
+	return seats;
+}
+
+
 void System::calculate()
 {
+
+	cout << "\nGetting Paths \n";
 	typename vector<School *>::const_iterator it = this->schools.begin();
+
+	vector<Bus *> vb = this->company->getBusesVector();
+	if(vb.size() == 0)
+	{
+		cout << "No Buses for transport\n";
+		return;
+	}
+
 
 	while(it != this->schools.end())
 	{
+		if(vb.size() == 0)
+		{
+			cout << "\nNo Buses left at the Station\n";
+			cout << "Must Wait till they are Back\n\n";
+			vb = this->company->getBusesVector();
+		}
 
 		vector<Student *> vt = this->getStudentsOfSchool((*it));
 
+		this->toSchool(vt,&vb);
+
 		it++;
 	}
+
+}
+
+
+void System::toSchool(vector<Student *> vs, vector<Bus*>* vb)
+{
+	int students = vs.size();
+
+	typename vector<Bus *>::const_iterator itb = vb->begin();
+	typename vector<Student *>::const_iterator its = vs.begin();
+	Coordenate * school = (*its)->getSchool();
+
+
+	while(students > 0)
+	{
+
+		vector<Coordenate *> coords;
+		coords.push_back(this->company->getCoord());
+
+		if(itb == vb->end())
+			itb = vb->begin();
+
+		for(size_t i = (*itb)->getCapacity(); i >0 ; i--)
+		{
+			if(its == vs.end())
+				break;
+			coords.push_back((*its)->getCoord());
+			students--;
+			its++;
+		}
+		itb++;
+
+		coords.push_back(school);
+
+		this->path(coords);
+
+
+	}
+
+}
+
+void System::path(vector<Coordenate *> path)
+{
+	stringstream out;
+
+	for(size_t i = 1; i < path.size(); i++)
+	{
+
+		int idorigem = i - 1;
+		int idchegada = i;
+
+		this->g->dijkstraShortestPath(path[idorigem]->getID());
+		vector<int> vec = this->g->getPath(path[idorigem]->getID(),path[idchegada]->getID());
+
+		for(size_t j = 0; j < vec.size() -1; j++)
+		{
+			out << vec[j] << "->" ;
+		}
+
+	}
+	out << path[path.size()-1]->getID();
+	out << "\n";
+	cout << out.str();
 }

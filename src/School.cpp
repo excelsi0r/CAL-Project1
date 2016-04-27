@@ -29,3 +29,8 @@ int const School::getY()
 	return this->pos->getY();
 }
 
+Coordenate * School::getSchool()
+{
+	return this->pos;
+}
+

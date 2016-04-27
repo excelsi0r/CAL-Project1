@@ -38,3 +38,13 @@ vector<Bus *> * const Company::getBuses()
 {
 	return &this->buses;
 }
+
+vector<Bus *> const Company::getBusesVector()
+{
+	return this->buses;
+}
+
+Coordenate* Company::getCoord()
+{
+	return this->pos;
+}

@@ -138,6 +138,10 @@ public:
 	 * @return Y
 	 */
 	int const getY();
+	/**
+	 * Get school coord
+	 */
+	Coordenate * getSchool();
 };
 
 /**
@@ -195,6 +199,14 @@ public:
 	 * @return Y of School
 	 */
 	int const getSchoolY();
+	/**
+	 * get coordenate
+	 */
+	Coordenate * getCoord();
+	/**
+	 * Get school
+	 */
+	Coordenate * getSchool();
 };
 
 /**
@@ -245,6 +257,14 @@ public:
 	 * @return vector<Bus *>*
 	 */
 	vector<Bus *>* const getBuses();
+	/**
+	 * Get Buses vector
+	 */
+	vector<Bus *> const getBusesVector();
+	/**
+	 * retrieve coordenate pointer
+	 */
+	Coordenate * getCoord();
 
 };
 
@@ -387,6 +407,16 @@ public:
 	 */
 	void createGraphViewer();
 	/**
+	 * Retrieve nodes funtion from file to gv
+	 * @param file
+	 */
+	void retrieveNodesViewer(const char * file);
+	/**
+	 * Retrieve edges funtion from file to gv
+	 * @param file
+	 */
+	void retrieveEdgesViewer(const char * file);
+	/**
 	 * Create Graph
 	 */
 	void createGraph();
@@ -403,5 +433,18 @@ public:
 	 * Calculate buses for schools and paths
 	 */
 	void calculate();
+	/**
+	 * Calculate Designated number of Buses to School
+	 */
+	void toSchool(vector<Student *> vs, vector<Bus *>* vt);
+	/**
+	 * retrive total number of seats available
+	 */
+	int getSeats(vector<Bus*> * vt);
+	/**
+	 * Calculate individual paths
+	 */
+	void path(vector<Coordenate*> path);
 };
+
 #endif /* SRC_HEADERS_H_ */

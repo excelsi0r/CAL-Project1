@@ -43,4 +43,12 @@ int const Student::getSchoolY()
 {
 	return this->school->getY();
 }
+Coordenate * Student::getCoord()
+{
+	return this->home;
+}
 
+Coordenate * Student::getSchool()
+{
+	return this->school->getSchool();
+}

@@ -16,9 +16,12 @@ int main()
 
 	system->initialize(COORDFILE,EDGEFILE, COMPANYFILE, SCHOOLSFILE, STUDENTSFILE, BUSFILE);
 
-	system->calculate();
+	system->createGraphViewer();
+	system->retrieveNodesViewer(COORDFILE);
+	system->retrieveEdgesViewer(EDGEFILE);
 
-	Sleep(10000);
+	getchar();
+
 }
 
 
